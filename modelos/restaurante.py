@@ -1,30 +1,41 @@
 from modelos.avaliacao import Avaliacao
+from modelos.cardapio.bebida import Bebida
+from modelos.cardapio.item_cardapio import ItemCardapio
+from modelos.cardapio.prato import Prato
+
 
 class Restaurante:
     restaurantes = []
+    _avaliacao: list[Avaliacao]
+    _cardapio: list[ItemCardapio | Bebida | Prato]
 
     def __init__(self, nome, categoria):
         self._nome = nome.title()
         self._categoria = categoria.upper()
         self._ativo = False
         self._avaliacao = []
+        self._cardapio = []
         Restaurante.restaurantes.append(self)
 
     def __str__(self):
-        return f'{self._nome} | {self._categoria}'
+        return f"{self._nome} | {self._categoria}"
 
     @classmethod
     def listar_restaurantes(cls):
         espaco = 20
         espaco_status = espaco - 12
-        print(f'{'Nome do restaurante'.ljust(espaco)} | {'Categoria'.ljust(espaco)} | {'Status'.ljust(espaco_status)} | {'Avaliação'}')
+        print(
+            f"{'Nome do restaurante'.ljust(espaco)} | {'Categoria'.ljust(espaco)} | {'Status'.ljust(espaco_status)} | {'Avaliação'}"
+        )
         print("")
         for restaurante in cls.restaurantes:
-            print(f'{restaurante._nome.ljust(espaco)} | {restaurante._categoria.ljust(espaco)} | {restaurante.ativo.ljust(espaco_status)} | {str(restaurante.media_avaliacao) if restaurante.media_avaliacao else "Sem avaliações" }')
+            print(
+                f"{restaurante._nome.ljust(espaco)} | {restaurante._categoria.ljust(espaco)} | {restaurante.ativo.ljust(espaco_status)} | {str(restaurante.media_avaliacao) if restaurante.media_avaliacao else 'Sem avaliações'}"
+            )
 
     @property
     def ativo(self):
-        return '⌧' if self._ativo else '☐'
+        return "⌧" if self._ativo else "☐"
 
     def alternar_estado(self):
         self._ativo = not self._ativo
@@ -34,7 +45,6 @@ class Restaurante:
         nova_avaliacao = Avaliacao(cliente, nota)
         self._avaliacao.append(nova_avaliacao)
 
-
     @property
     def media_avaliacao(self):
         if not self._avaliacao:
@@ -43,3 +53,14 @@ class Restaurante:
         quantidade_notas = len(self._avaliacao)
         media = round(soma_das_notas / quantidade_notas, 1)
         return media
+
+    def adicionar_item_cardapio(self, item: ItemCardapio | Bebida | Prato):
+        if isinstance(item, ItemCardapio):
+            self._cardapio.append(item)
+
+    @property
+    def listar_cardapio(self):
+        return "\n".join(
+            f"{i}: {item._nome} | {getattr(item, '_descricao', getattr(item, '_tamanho', ''))}{'.' * 20}R$ {item._preco}"
+            for i, item in enumerate(self._cardapio, 1)
+        )
