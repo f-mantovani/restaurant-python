@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class ItemCardapio(ABC):
-    def __init__(self, nome, preco) -> None:
+    def __init__(self, nome: str, preco: float) -> None:
         self._preco = preco
         self._nome = nome
 

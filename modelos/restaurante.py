@@ -60,7 +60,23 @@ class Restaurante:
 
     @property
     def listar_cardapio(self):
-        return "\n".join(
-            f"{i}: {item._nome} | {getattr(item, '_descricao', getattr(item, '_tamanho', ''))}{'.' * 20}R$ {item._preco}"
-            for i, item in enumerate(self._cardapio, 1)
-        )
+        cardapio = []
+
+        for i, item in enumerate(self._cardapio, 1):
+            info = f"{i}. {item._nome}"
+            descricao = getattr(item, "_descricao", None)
+            tamanho = getattr(item, "_tamanho", None)
+            tipo = getattr(item, "_tipo", None)
+
+            if descricao:
+                info += f"| {descricao}"
+            if tamanho:
+                info += f"| {tamanho}"
+            if tipo:
+                info += f"| {tipo}"
+
+            info += f"{'.' * (70 - len(info))} R${item._preco:.2f}"
+
+            cardapio.append(info)
+
+        return "\n".join(cardapio)
