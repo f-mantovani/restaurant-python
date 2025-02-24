@@ -1,29 +1,41 @@
-from modelos.cardapio.bebida import Bebida
-from modelos.cardapio.prato import Prato
-from modelos.cardapio.sobremesa import Sobremesa
-from modelos.restaurante import Restaurante
-
-restaurante_praca = Restaurante("Praça", "Gourmet")
-restaurate_japa = Restaurante("Ni hao", "Japones")
-restaurante_mexicano = Restaurante("Mexican Food", "Mexicana")
-
-bebida_suco = Bebida("Suco Melancia", 5.00, "grande")
-prato_pao = Prato("Paozinho", 2.00, "O melhor pãozinho da cidade")
-sobremesa_pudim = Sobremesa(
-    "Pudim", 8.00, "Caseiro", "Pudim do jeito como a vó fazia", "grande"
-)
-
-restaurante_praca.adicionar_item_cardapio(bebida_suco)
-restaurante_praca.adicionar_item_cardapio(prato_pao)
-restaurante_praca.adicionar_item_cardapio(sobremesa_pudim)
-
-prato_pao.aplicar_desconto()
+from fastapi import FastAPI, Query
+import requests
 
 
-def main():
-    print(restaurante_praca.listar_cardapio)
-    print("")
+app = FastAPI()
+
+print("changes in that file")
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/")
+def start():
+    return {"message": "success", "server": "running"}
+
+
+@app.get("/api/restaurantes/")
+def get_restaurantes(restaurante: str = Query(None)):
+    """
+    Endpoint para mostrar o menu dos restaurantes
+    """
+    url = "https://guilhermeonrails.github.io/api-restaurantes/restaurantes.json"
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        dados_json = response.json()
+        if restaurante is None:
+            return {"Dados": dados_json}
+
+        dados_restaurante = []
+        for item in dados_json:
+            if item["Company"] == restaurante:
+                dados_restaurante.append(
+                    {
+                        "item": item["Item"],
+                        "preco": item["price"],
+                        "descricao": item["description"],
+                    }
+                )
+        return {"Restaurante": restaurante, "Cardapio": dados_restaurante}
+    else:
+        return {"Erro": f"{response.status_code} - {response.text}"}
